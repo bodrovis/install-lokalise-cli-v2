@@ -41,7 +41,7 @@ install_lokalise_cli() {
     download_installer
 
     echo "Running Lokalise CLI installer..."
-    if ! bash "$INSTALLER_FILE" --path="$BIN_DIR"; then
+    if ! bash "$INSTALLER_FILE" -b "$BIN_DIR"; then
         echo "Failed to install Lokalise CLI"
         exit 1
     fi
