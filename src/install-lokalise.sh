@@ -5,6 +5,8 @@ set -euo pipefail
 FORCE_INSTALL="${FORCE_INSTALL:-false}"
 INSTALLER_URL="https://raw.githubusercontent.com/lokalise/lokalise-cli-2-go/master/install.sh"
 INSTALLER_FILE="install.sh"
+BIN_DIR="./bin"
+LOKALISE_CLI="$BIN_DIR/lokalise2"
 MAX_RETRIES=3
 RETRY_DELAY=3
 
@@ -39,7 +41,7 @@ install_lokalise_cli() {
     download_installer
 
     echo "Running Lokalise CLI installer..."
-    if ! bash "$INSTALLER_FILE"; then
+    if ! bash "$INSTALLER_FILE" --path="$BIN_DIR"; then
         echo "Failed to install Lokalise CLI"
         exit 1
     fi
@@ -51,18 +53,18 @@ install_lokalise_cli() {
 }
 
 validate_installation() {
-    if ! command -v lokalise2 >/dev/null 2>&1; then
-        echo "Error: Lokalise CLI installation failed. Command 'lokalise2' not found."
+    if [[ ! -x "$LOKALISE_CLI" ]]; then
+        echo "Error: Lokalise CLI installation failed. Command '$LOKALISE_CLI' not found."
         exit 1
     fi
 
-    echo "Lokalise CLI version: $(lokalise2 --version)"
+    echo "Lokalise CLI version: $($LOKALISE_CLI --version)"
 }
 
 if [[ "$FORCE_INSTALL" == "true" ]]; then
     install_lokalise_cli
-elif ! command -v lokalise2 >/dev/null 2>&1; then
+elif [[ ! -x "$LOKALISE_CLI" ]]; then
     install_lokalise_cli
 else
-    echo "Lokalise CLI is already installed, skipping installation."
+    echo "Lokalise CLI is already installed at $LOKALISE_CLI, skipping installation."
 fi
