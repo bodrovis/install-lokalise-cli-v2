@@ -1,34 +1,43 @@
 #!/bin/bash
-
 set -euo pipefail
 
 FORCE_INSTALL="${FORCE_INSTALL:-false}"
 INSTALLER_URL="https://raw.githubusercontent.com/lokalise/lokalise-cli-2-go/master/install.sh"
-INSTALLER_FILE="install.sh"
-BIN_DIR="./bin"
+BIN_DIR="${BIN_DIR:-./bin}"
 LOKALISE_CLI="$BIN_DIR/lokalise2"
 MAX_RETRIES=3
 RETRY_DELAY=3
+
+mkdir -p "$BIN_DIR"
+
+INSTALLER_FILE=$(mktemp -p . install.sh.XXXXXX)
+
+cleanup() {
+    rm -f "$INSTALLER_FILE"
+}
+trap cleanup EXIT
 
 download_installer() {
     local attempt=1
     while [[ $attempt -le $MAX_RETRIES ]]; do
         echo "Downloading Lokalise CLI installer, attempt $attempt..."
-        if curl -sfLO "$INSTALLER_URL"; then
-            # Validate the installer
-            if [[ -f "$INSTALLER_FILE" ]] && [[ $(head -n 1 "$INSTALLER_FILE") =~ ^#!/bin/sh ]]; then
+        if curl -sfLo "$INSTALLER_FILE" "$INSTALLER_URL"; then
+            # Validate installer: non-empty and starts with #!/bin/sh
+            if [[ -s "$INSTALLER_FILE" ]] && head -n 1 "$INSTALLER_FILE" | grep -q "^#!/bin/sh"; then
                 echo "Installer downloaded and validated successfully."
                 return 0
             else
-                echo "Installer validation failed. Content of the file:"
+                echo "Installer validation failed. File content:"
                 cat "$INSTALLER_FILE" || echo "Unable to read file."
                 rm -f "$INSTALLER_FILE"
+                # Recreate temp file for next attempt
+                INSTALLER_FILE=$(mktemp -p . install.sh.XXXXXX)
             fi
         else
-            echo "Failed to download installer. Retrying in $RETRY_DELAY seconds..."
+            echo "Failed to download installer. Retrying in $((RETRY_DELAY ** attempt)) seconds..."
         fi
         attempt=$((attempt + 1))
-        sleep $((RETRY_DELAY ** attempt)) # Exponential backoff
+        sleep $((RETRY_DELAY ** attempt))
     done
 
     echo "Failed to download a valid Lokalise CLI installer after $MAX_RETRIES attempts."
@@ -36,8 +45,6 @@ download_installer() {
 }
 
 install_lokalise_cli() {
-    trap 'rm -f "$INSTALLER_FILE"' EXIT
-
     download_installer
 
     echo "Running Lokalise CLI installer..."
@@ -46,22 +53,21 @@ install_lokalise_cli() {
         exit 1
     fi
 
-    rm -f "$INSTALLER_FILE"
     echo "Lokalise CLI installed successfully."
-
     validate_installation
 }
 
 validate_installation() {
     if [[ ! -x "$LOKALISE_CLI" ]]; then
-        echo "Error: Lokalise CLI installation failed. Command '$LOKALISE_CLI' not found."
+        echo "Error: Lokalise CLI installation failed. Command '$LOKALISE_CLI' not found or not executable."
         exit 1
     fi
 
-    echo "Lokalise CLI version: $($LOKALISE_CLI --version)"
+    echo "Lokalise CLI version: $("$LOKALISE_CLI" --version)"
 }
 
 if [[ "$FORCE_INSTALL" == "true" ]]; then
+    echo "Force install enabled. Proceeding with installation."
     install_lokalise_cli
 elif [[ ! -x "$LOKALISE_CLI" ]]; then
     install_lokalise_cli

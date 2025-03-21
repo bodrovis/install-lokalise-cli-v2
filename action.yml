@@ -5,6 +5,9 @@ inputs:
     description: 'Force installation if Lokalise CLI is already installed'
     required: false
     default: false
+branding:
+  icon: 'box'
+  color: 'black'
 
 runs:
   using: 'composite'
