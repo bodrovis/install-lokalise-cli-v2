@@ -6,7 +6,7 @@ Not your father's CLI installer: install Lokalise CLIv2 for maximum fun and prod
 
 ```yaml
 - name: Install Lokalise CLIv2
-  uses: bodrovis/install-lokalise-cli-v2@v1.0.0
+  uses: bodrovis/install-lokalise-cli-v2@v1.1.0
   # Optionally, provide parameters:
   with:
     force-install: true
