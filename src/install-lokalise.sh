@@ -2,7 +2,8 @@
 set -euo pipefail
 
 FORCE_INSTALL="${FORCE_INSTALL:-false}"
-INSTALLER_URL="https://raw.githubusercontent.com/lokalise/lokalise-cli-2-go/master/install.sh"
+INSTALLER_URL="https://raw.githubusercontent.com/lokalise/lokalise-cli-2-go/8ba6bbed2637cf615dd97496e99828f92a1817d7/install.sh"
+
 BIN_DIR="${BIN_DIR:-./bin}"
 LOKALISE_CLI="$BIN_DIR/lokalise2"
 MAX_RETRIES=3
@@ -10,7 +11,7 @@ RETRY_DELAY=3
 
 mkdir -p "$BIN_DIR"
 
-INSTALLER_FILE=$(mktemp -p . install.sh.XXXXXX)
+INSTALLER_FILE=$(mktemp)
 
 cleanup() {
     rm -f "$INSTALLER_FILE"
@@ -28,10 +29,12 @@ download_installer() {
                 return 0
             else
                 echo "Installer validation failed. File content:"
-                cat "$INSTALLER_FILE" || echo "Unable to read file."
+                if ! cat "$INSTALLER_FILE"; then
+                    echo "Unable to read downloaded file (permission or FS issue?)"
+                fi
                 rm -f "$INSTALLER_FILE"
                 # Recreate temp file for next attempt
-                INSTALLER_FILE=$(mktemp -p . install.sh.XXXXXX)
+                INSTALLER_FILE=$(mktemp)
             fi
         else
             echo "Failed to download installer. Retrying in $((RETRY_DELAY ** attempt)) seconds..."
@@ -47,8 +50,17 @@ download_installer() {
 install_lokalise_cli() {
     download_installer
 
-    echo "Running Lokalise CLI installer..."
-    if ! bash "$INSTALLER_FILE" -b "$BIN_DIR"; then
+    TAG_ARG=""
+    if [[ -n "${LOKALISE_CLI_VERSION:-}" ]]; then
+        TAG_ARG="v${LOKALISE_CLI_VERSION}"
+    fi
+
+    if [[ -n "${TAG_ARG}" ]]; then
+        echo "Installing Lokalise CLI version: $TAG_ARG"
+    else
+        echo "Installing latest version of Lokalise CLI"
+    fi
+    if ! bash "$INSTALLER_FILE" -b "$BIN_DIR" "$TAG_ARG"; then
         echo "Failed to install Lokalise CLI"
         exit 1
     fi

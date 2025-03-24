@@ -1,20 +1,21 @@
 # GitHub Action to Install Lokalise CLIv2
 
-Not your father's CLI installer: install Lokalise CLIv2 for maximum fun and productivity!
+Not your father's CLI installer — this one's fast, flexible, and ready to Lokalise like a pro.
 
-## Usage
+## 🔧 Usage
 
 ```yaml
 - name: Install Lokalise CLIv2
-  uses: bodrovis/install-lokalise-cli-v2@v1.1.0
-  # Optionally, provide parameters:
+  uses: bodrovis/install-lokalise-cli-v2@v1.2.0
   with:
-    force-install: true
+    force-install: true         # Optional: force reinstallation even if already installed
+    target-version: 3.1.1       # Optional: specify CLI version (e.g., 3.1.1). Defaults to latest.
 ```
 
 ## Parameters
 
-* `force-install` — reinstall Lokalise CLIv2 even if it is already installed. Defaults to `false`.
+- `target-version` *(optional)* — Version of the Lokalise CLI to install. Use the version number only (e.g., `3.1.1`), and do not include the `v` prefix. If not provided, the latest available version will be installed.
+- `force-install` *(optional, default: `false`)* — Reinstall Lokalise CLI even if it is already installed.
 
 ## License
 

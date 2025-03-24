@@ -5,6 +5,12 @@ inputs:
     description: 'Force installation if Lokalise CLI is already installed'
     required: false
     default: false
+
+  target-version:
+    description: 'Version of Lokalise CLI to install (e.g., 3.1.1)'
+    required: false
+    default: ''
+
 branding:
   icon: 'box'
   color: 'black'
@@ -17,6 +23,7 @@ runs:
       id: install-lokalise
       env:
         FORCE_INSTALL: ${{ inputs.force-install }}
+        LOKALISE_CLI_VERSION: ${{ inputs.target-version }}
       run: |
         set -e
         chmod +x "${{ github.action_path }}/src/install-lokalise.sh"
