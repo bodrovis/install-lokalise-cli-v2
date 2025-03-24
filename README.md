@@ -2,7 +2,7 @@
 
 Not your father's CLI installer — this one's fast, flexible, and ready to Lokalise like a pro.
 
-## 🔧 Usage
+## Usage
 
 ```yaml
 - name: Install Lokalise CLIv2
