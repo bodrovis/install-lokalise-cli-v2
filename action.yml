@@ -4,7 +4,7 @@ inputs:
   force-install:
     description: 'Force installation if Lokalise CLI is already installed'
     required: false
-    default: false
+    default: 'false'
 
   target-version:
     description: 'Version of Lokalise CLI to install (e.g., 3.1.1)'
@@ -25,6 +25,13 @@ runs:
         FORCE_INSTALL: ${{ inputs.force-install }}
         LOKALISE_CLI_VERSION: ${{ inputs.target-version }}
       run: |
-        set -e
-        chmod +x "${{ github.action_path }}/src/install-lokalise.sh"
-        "${{ github.action_path }}/src/install-lokalise.sh"
+        set -euo pipefail
+
+        SCRIPT="${{ github.action_path }}/src/install-lokalise.sh"
+        if [[ ! -f "$SCRIPT" ]]; then
+          echo "Helper script not found: $SCRIPT"
+          exit 1
+        fi
+
+        chmod +x "$SCRIPT"
+        "$SCRIPT"

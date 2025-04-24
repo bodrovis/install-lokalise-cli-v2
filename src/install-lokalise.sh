@@ -12,6 +12,7 @@ RETRY_DELAY=3
 mkdir -p "$BIN_DIR"
 
 INSTALLER_FILE=$(mktemp)
+export INSTALLER_FILE
 
 cleanup() {
     rm -f "$INSTALLER_FILE"
@@ -37,10 +38,10 @@ download_installer() {
                 INSTALLER_FILE=$(mktemp)
             fi
         else
-            echo "Failed to download installer. Retrying in $((RETRY_DELAY ** attempt)) seconds..."
+            echo "Failed to download installer. Retrying in $((RETRY_DELAY * attempt)) seconds..."
         fi
         attempt=$((attempt + 1))
-        sleep $((RETRY_DELAY ** attempt))
+        sleep $((RETRY_DELAY * attempt))
     done
 
     echo "Failed to download a valid Lokalise CLI installer after $MAX_RETRIES attempts."
