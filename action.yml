@@ -15,6 +15,9 @@ branding:
   icon: 'box'
   color: 'black'
 
+permissions:
+  contents: read
+  
 runs:
   using: 'composite'
   steps:

@@ -6,10 +6,10 @@ Not your father's CLI installer — this one's fast, flexible, and ready to Loka
 
 ```yaml
 - name: Install Lokalise CLIv2
-  uses: lokalise/install-lokalise-cli-v2@v1.2.0
+  uses: lokalise/install-lokalise-cli-v2@v1.2.1
   with:
     force-install: true         # Optional: force reinstallation even if already installed
-    target-version: 3.1.1       # Optional: specify CLI version (e.g., 3.1.1). Defaults to latest.
+    target-version: 3.1.3       # Optional: specify CLI version (e.g., 3.1.1). Defaults to latest.
 ```
 
 ## Parameters

@@ -23,6 +23,7 @@ download_installer() {
     local attempt=1
     while [[ $attempt -le $MAX_RETRIES ]]; do
         echo "Downloading Lokalise CLI installer, attempt $attempt..."
+        
         if curl -sfLo "$INSTALLER_FILE" "$INSTALLER_URL"; then
             # Validate installer: non-empty and starts with #!/bin/sh
             if [[ -s "$INSTALLER_FILE" ]] && head -n 1 "$INSTALLER_FILE" | grep -q "^#!/bin/sh"; then
@@ -38,10 +39,13 @@ download_installer() {
                 INSTALLER_FILE=$(mktemp)
             fi
         else
-            echo "Failed to download installer. Retrying in $((RETRY_DELAY * attempt)) seconds..."
+            echo "Failed to download installer."
         fi
+        
+        local delay=$((RETRY_DELAY * attempt))
+        echo "Retrying in $delay seconds..."
+        sleep "$delay"
         attempt=$((attempt + 1))
-        sleep $((RETRY_DELAY * attempt))
     done
 
     echo "Failed to download a valid Lokalise CLI installer after $MAX_RETRIES attempts."
@@ -79,6 +83,7 @@ validate_installation() {
     echo "Lokalise CLI version: $("$LOKALISE_CLI" --version)"
 }
 
+shopt -s nocasematch
 if [[ "$FORCE_INSTALL" == "true" ]]; then
     echo "Force install enabled. Proceeding with installation."
     install_lokalise_cli
