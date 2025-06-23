@@ -11,6 +11,11 @@ inputs:
     required: false
     default: ''
 
+  add-to-path:
+    description: 'Add Lokalise CLI to PATH after installation'
+    required: false
+    default: 'false'
+    
 branding:
   icon: 'box'
   color: 'black'
@@ -27,6 +32,7 @@ runs:
       env:
         FORCE_INSTALL: ${{ inputs.force-install }}
         LOKALISE_CLI_VERSION: ${{ inputs.target-version }}
+        ADD_TO_PATH: ${{ inputs.add-to-path }}
       run: |
         set -euo pipefail
 

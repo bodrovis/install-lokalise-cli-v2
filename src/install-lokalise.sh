@@ -2,6 +2,7 @@
 set -euo pipefail
 
 FORCE_INSTALL="${FORCE_INSTALL:-false}"
+ADD_TO_PATH="${ADD_TO_PATH:-false}"
 INSTALLER_URL="https://raw.githubusercontent.com/lokalise/lokalise-cli-2-go/8ba6bbed2637cf615dd97496e99828f92a1817d7/install.sh"
 
 BIN_DIR="${BIN_DIR:-./bin}"
@@ -72,6 +73,7 @@ install_lokalise_cli() {
 
     echo "Lokalise CLI installed successfully."
     validate_installation
+    add_to_path
 }
 
 validate_installation() {
@@ -83,6 +85,22 @@ validate_installation() {
     echo "Lokalise CLI version: $("$LOKALISE_CLI" --version)"
 }
 
+add_to_path() {
+    shopt -s nocasematch
+    if [[ "$ADD_TO_PATH" == "true" ]]; then
+        local bin_abs_path
+        bin_abs_path="$(cd "$BIN_DIR" && pwd)"
+        
+        if [[ -z "${GITHUB_PATH:-}" ]]; then
+            echo "Warning: GITHUB_PATH not set, cannot persist PATH for future steps."
+            echo "You may want to add $bin_abs_path to PATH manually."
+        else
+            echo "Adding $bin_abs_path to PATH for subsequent workflow steps."
+            echo "$bin_abs_path" >> "$GITHUB_PATH"
+        fi
+    fi
+}
+
 shopt -s nocasematch
 if [[ "$FORCE_INSTALL" == "true" ]]; then
     echo "Force install enabled. Proceeding with installation."
@@ -91,4 +109,5 @@ elif [[ ! -x "$LOKALISE_CLI" ]]; then
     install_lokalise_cli
 else
     echo "Lokalise CLI is already installed at $LOKALISE_CLI, skipping installation."
+    add_to_path
 fi
