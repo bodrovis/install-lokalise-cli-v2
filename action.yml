@@ -14,7 +14,7 @@ inputs:
   add-to-path:
     description: 'Add Lokalise CLI to PATH after installation'
     required: false
-    default: 'false'
+    default: 'true'
     
 branding:
   icon: 'box'
